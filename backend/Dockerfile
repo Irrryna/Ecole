@@ -1,7 +1,7 @@
 # Utiliser une image Node.js
 FROM node:18-alpine
 
-# Définir le répertoire de travail dans le conteneur
+# Définir le répertoire de travail dans le conteneurd dz
 WORKDIR /usr/src/app
 
 # Copier les fichiers de dépendances
