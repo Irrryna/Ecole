@@ -1,0 +1,37 @@
+
+.main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--main-blue);
+  padding: 1rem 2rem;
+  border-bottom: 5px solid var(--main-yellow);
+}
+
+.nav-links a {
+  color: var(--text-light);
+  margin: 0 1rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.nav-links a.active {
+  text-decoration: underline;
+  color: var(--main-yellow);
+}
+
+.lang-switcher button {
+  background-color: var(--main-yellow);
+  color: var(--main-blue);
+  border: none;
+  padding: 0.5rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.lang-switcher button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
