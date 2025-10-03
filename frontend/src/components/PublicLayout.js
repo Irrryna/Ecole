@@ -1,16 +1,13 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
+import { Outlet } from "react-router-dom";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
-const PublicLayout = () => {
+export default function PublicLayout(){
   return (
-    <div>
+    <>
       <Navbar />
-      <main className="page-content">
-        <Outlet /> {/* Le contenu des routes imbriquées s'affichera ici */}
-      </main>
-    </div>
+      <main style={{paddingTop:68}}><Outlet /></main>
+      <Footer />
+    </>
   );
-};
-
-export default PublicLayout;
+}

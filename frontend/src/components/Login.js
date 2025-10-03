@@ -1,61 +1,62 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
-import './Auth.css';
+import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";        
+import { useNavigate } from "react-router-dom";          
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const { login } = useAuth(); // Use the login function from AuthContext
+export default function Login(){
+  const { t } = useTranslation();
+  const { login } = useAuth();                          
+  const navigate = useNavigate();                       
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const API = process.env.REACT_APP_API_URL || "/api";   //  REACT_APP_API_URL=/api
 
-  const handleSubmit = async (e) => {
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setLoading(true); setError("");
     try {
-      const success = await login(email, password); // Call login from AuthContext
-      if (!success) {
-        setError('Failed to login. Please check your credentials.');
-      }
-      // No need for window.location = '/' here, PublicRoute will handle redirection
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();                     // lire  1 fois
+      if (!res.ok) throw new Error(data.message || "Login failed");
+
+      login(data);                                       // stocke token + user + role
+      navigate("/portal", { replace: true });            // va au portail
     } catch (err) {
-      setError('Failed to login. Please check your credentials.');
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-form">
-        <h2>Login</h2>
-        {error && <p className="auth-error">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="auth-input-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="auth-input-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="auth-button">Login</button>
+    <div className="container section narrow">
+      <div className="card form">
+        <h1>{t("auth.login.title")}</h1>
+        {error && <p className="muted" style={{color:"#b42318"}}>{error}</p>}
+        <form onSubmit={onSubmit}>
+          <label>{t("auth.login.email")}
+            <input name="email" type="email" value={form.email} onChange={onChange} required />
+          </label>
+          <label>{t("auth.login.password")}
+            <input name="password" type="password" value={form.password} onChange={onChange} required />
+          </label>
+          <button className="btn" type="submit" disabled={loading}>
+            {loading ? "…" : t("auth.login.btn")}
+          </button>
+          <p className="muted" style={{marginTop:8}}>
+            <Trans i18nKey="auth.login.noAccount" components={{ a: <a href="/register" /> }}>
+              Pas encore de compte ? <a href="/register">Créer un compte</a>
+            </Trans>
+          </p>
         </form>
-        <p className="auth-switch">
-          Don't have an account? <a href="/register">Register</a>
-        </p>
       </div>
     </div>
   );
 }
-
-export default Login;

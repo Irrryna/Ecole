@@ -1,3 +1,5 @@
+@import "../Theme.css"; /* pour hériter des boutons, cards, table, form */
+
 .dashboard-container {
   display: flex;
   height: 100vh;

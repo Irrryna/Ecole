@@ -1,0 +1,89 @@
+{
+  "brand": { "title": "École Ukrainienne", "subtitle": "à Lyon" },
+
+  "nav": {
+    "home": "Home",
+    "about": "À propos",
+    "news": "Actualités",
+    "teachers": "Professeurs",
+    "blog": "Blog",
+    "contacts": "Contacts",
+    "planning": "Planning parental",
+    "login": "Connexion / Inscription"
+  },
+
+  "hero": {
+    "title": "Bienvenue à l’école ukrainienne de Saint-Nicolas",
+    "subtitle": "L’endroit où les enfants ukrainiens se réunissent chaque samedi pour apprendre leur culture d’origine.",
+    "cta_discover": "Découvrir l’école",
+    "cta_planning": "Planning parental"
+  },
+
+  "about": {
+    "title": "À propos",
+    "p1": "Depuis 2015, notre école associative accueille les enfants ukrainiens de la région lyonnaise chaque samedi. Notre mission : transmettre la langue, la littérature, les traditions et la culture, tout en créant un lieu chaleureux de rencontre pour les familles.",
+    "li1": "Programme du samedi adapté par niveaux",
+    "li2": "Ateliers culturels (chants, danses, arts décoratifs)",
+    "li3": "Événements communautaires et fêtes traditionnelles",
+    "info": "Informations clés",
+    "facts": { "foundation": "Fondation", "location": "Lieu", "audience": "Public", "languages": "Langues" },
+    "factsValues": { "foundation": "2015", "location": "Lyon & métropole", "audience": "Enfants 5–16 ans", "languages": "Ukrainien & Français" }
+  },
+
+  "news": {
+    "title": "Actualités",
+    "card1": { "title": "Rentrée & inscriptions", "text": "Les inscriptions pour la nouvelle année sont ouvertes. Découvrez les modalités et les horaires du samedi.", "action": "Lire la suite" },
+    "card2": { "title": "Atelier Petrykivka", "text": "Atelier d’arts décoratifs pour tous les niveaux — venez peindre les motifs floraux traditionnels !", "action": "Voir les photos" },
+    "card3": { "title": "Fête de Saint-Nicolas", "text": "Rejoignez-nous pour la célébration annuelle avec spectacles, musique et douceurs.", "action": "Programme" }
+  },
+
+  "teachers": { "title": "Professeurs" },
+
+  "blog": {
+    "title": "Blog",
+    "card1": { "title": "Pourquoi des cours le samedi ?", "text": "Notre pédagogie complémentaire aux écoles françaises, expliquée simplement.", "action": "Lire" },
+    "card2": { "title": "Guide des parents", "text": "Première fois chez nous ? Tenue, matériel, horaires, sécurité.", "action": "Lire" },
+    "card3": { "title": "Événements à Lyon", "text": "La sélection culturelle ukrainienne à ne pas manquer ce trimestre.", "action": "Lire" }
+  },
+
+  "contact": {
+    "title": "Contacts",
+    "school": "École Ukrainienne Saint-Nicolas — Lyon",
+    "email": "Email",
+    "address": "Adresse",
+    "hours": "Horaires",
+    "hoursValue": "Samedi matin et après-midi",
+    "form": { "name": "Nom", "message": "Message", "send": "Envoyer" }
+  },
+
+  "footer": { "rights": "Tous droits réservés" },
+
+  "planning": {
+    "title": "Planning parental",
+    "lead": "Espace réservé aux familles : inscriptions aux permanences, goûters, événements, covoiturage, etc.",
+    "login": { "title": "Connexion", "email": "Email", "password": "Mot de passe", "btn": "Se connecter", "register": "Pas encore de compte ? {{link}}" },
+    "registerLink": "Créer un compte"
+  },
+
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "email": "Email",
+      "password": "Mot de passe",
+      "btn": "Se connecter",
+      "noAccount": "Pas encore de compte ? {{link}}",
+      "registerLink": "Créer un compte"
+    },
+    "register": {
+      "title": "Inscription",
+      "firstname": "Prénom",
+      "lastname": "Nom",
+      "email": "Email",
+      "password": "Mot de passe",
+      "confirm": "Confirmer le mot de passe",
+      "btn": "Créer mon compte",
+      "haveAccount": "Déjà un compte ? {{link}}",
+      "loginLink": "Se connecter"
+    }
+  }
+}

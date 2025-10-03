@@ -1,3 +1,5 @@
+@import "../Theme.css"; /* pour hériter des boutons, cards, table, form */
+
 .management-container {
   animation: fadeIn 0.5s ease-in-out;
 }

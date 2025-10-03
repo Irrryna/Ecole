@@ -43,6 +43,8 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/students', require('./routes/students'));
 app.use('/api/trainers', require('./routes/trainers'));
 app.use('/api/classes', require('./routes/classes'));
+app.use('/api/planning', require('./routes/planning'));
+app.use('/api/homework', require('./routes/homework'));
 
 // 404 propre sur l’API
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));

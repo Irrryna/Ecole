@@ -11,6 +11,8 @@
   --font-body: 'Open Sans', sans-serif;
 }
 
+@import "../Theme.css"; /* pour hériter des boutons, cards, table, form */
+
 .auth-container {
   display: flex;
   justify-content: center;
