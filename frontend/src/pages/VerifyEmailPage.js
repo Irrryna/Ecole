@@ -1,47 +1,46 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+// src/pages/VerifyEmailPage.jsx
+import { useEffect, useState } from "react";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 
 export default function VerifyEmailPage() {
-  const { token } = useParams();
-  const [message, setMessage] = useState('Vérification de votre e-mail...');
-  const [error, setError] = useState(false);
-  const API = process.env.REACT_APP_API_URL || '/api';
+  const [ok, setOk] = useState(false);
+  const [msg, setMsg] = useState("...");
+  const [sp] = useSearchParams();
+  const navigate = useNavigate();
+  const token = sp.get("token");
+  const API = process.env.REACT_APP_API_URL || "/api";
 
   useEffect(() => {
-    const verifyEmail = async () => {
-      try {
-        const res = await fetch(`${API}/auth/verify-email/${token}`);
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || 'La vérification a échoué.');
-        }
-
-        setMessage(data.message);
-        setError(false);
-      } catch (err) {
-        setMessage(err.message);
-        setError(true);
-      }
-    };
-
-    if (token) {
-      verifyEmail();
+    if (!token) {
+      setMsg("Token manquant");
+      return;
     }
-  }, [token, API]);
+    fetch(`${API}/auth/verify-email?token=${encodeURIComponent(token)}`, {
+      credentials: "include",
+    })
+      .then((r) => {
+        if (r.redirected) {
+          navigate("/login?verified=1", { replace: true });
+          return;
+        }
+        return r.json();
+      })
+      .then((data) => {
+        if (data?.message) setMsg(data.message);
+        if (data?.ok || data?.isEmailVerified) setOk(true);
+      })
+      .catch(() => setMsg("Erreur"));
+    // eslint-disable-next-line
+  }, [token]);
 
   return (
     <div className="container section narrow">
-      <div className="card" style={{textAlign: 'center'}}>
-        <h1>Vérification de l'e-mail</h1>
-        <p style={{color: error ? '#b42318' : '#128a5a', marginBlock: 24}}>{message}</p>
-        {!error && (
-          <p>
-            <Link to="/login" className="btn">
-              Aller à la page de connexion
-            </Link>
-          </p>
-        )}
+      <div className="card">
+        <h1>Vérification de l’e-mail</h1>
+        <p className="muted">{msg}</p>
+        <p>
+          <Link to="/login">Aller à la connexion</Link>
+        </p>
       </div>
     </div>
   );

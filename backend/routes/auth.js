@@ -1,162 +1,184 @@
-// backend/routes/auth.js
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const User = require('../models/User');
-const sendEmail = require('../utils/sendEmail');
+const { OAuth2Client } = require('google-auth-library'); // login Google (optionnel)
+const User = require('../models/Users');
 const { requireAuth } = require('../middleware/auth');
+const sendEmail = require('../../tools/sendEmail'); // <- tools/sendEmail.js à la racine du projet
 
-// Génération du JWT
+const CLIENT_ORIGIN = (process.env.CLIENT_ORIGIN || 'http://localhost:3000').split(',')[0].trim();
+const googleClient = process.env.GOOGLE_CLIENT_ID ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID) : null;
+
 function sign(u) {
-  return jwt.sign(
-    { id: u._id, role: u.role, email: u.email },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
-  );
+  return jwt.sign({ id: u._id, role: u.role, email: u.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
 }
 
-// POST /api/auth/register
+// ---------- REGISTER (envoie mail de vérif, pas de login auto)
 router.post('/register', async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
-    }
+    const { firstName, lastName, email, password /* role */ } = req.body;
+    if (!email || !password) return res.status(400).json({ message: 'Потрібні email і пароль' });
 
     const normEmail = String(email).trim().toLowerCase();
-
     const exists = await User.findOne({ email: normEmail }).lean();
-    if (exists) {
-      return res.status(400).json({ message: 'Email already in use' });
-    }
+    if (exists) return res.status(400).json({ message: 'Електронна адреса вже використовується' });
 
-    const user = new User({
-      firstName,
-      lastName,
-      email: normEmail,
-      password,
-      role: 'PARENT'
-    });
+    const user = await User.create({ firstName, lastName, email: normEmail, password, role: 'PARENT' });
 
-    const confirmationToken = user.getConfirmationToken();
-    await user.save();
+    // token de vérification
+    const rawToken = user.createEmailVerifyToken();
+    await user.save({ validateBeforeSave: false });
 
-    const confirmUrl = `${process.env.CLIENT_URL}/verify-email/${confirmationToken}`;
-
-    const message = `
-      Bonjour ${user.firstName},
-
-      Merci de vous être inscrit ! Veuillez cliquer sur le lien ci-dessous pour vérifier votre adresse e-mail:
-
-      <a href="${confirmUrl}">${confirmUrl}</a>
-
-      Ce lien expirera dans 24 heures.
-
-      Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet e-mail.
-
-      Cordialement,
-      L'équipe de l'École Ukrainienne de Lyon
+    const verifyUrl = `${CLIENT_ORIGIN}/verify-email?token=${rawToken}`;
+    const subject = 'Confirmez votre e-mail / Підтвердіть свою електронну адресу';
+    const html = `
+      <p>Bonjour ${firstName || ''},</p>
+      <p>Merci pour votre inscription à l’École Ukrainienne de Lyon.</p>
+      <p>Veuillez confirmer votre e-mail en cliquant sur le lien ci-dessous :</p>
+      <p><a href="${verifyUrl}">${verifyUrl}</a></p>
+      <hr/>
+      <p>Вітаємо${firstName ? `, ${firstName}` : ''}!</p>
+      <p>Дякуємо за реєстрацію в Українській Школі в Ліоні.</p>
+      <p>Будь ласка, підтвердіть свою адресу електронної пошти за посиланням вище.</p>
     `;
 
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: 'Confirmation de votre adresse e-mail',
-        html: message
-      });
+    await sendEmail({ to: normEmail, subject, html, text: `Confirmez : ${verifyUrl}` });
 
-      res.status(201).json({ 
-        success: true, 
-        message: `Un e-mail de confirmation a été envoyé à ${user.email}.` 
-      });
-    } catch (err) {
-      console.error('Email sending error:', err);
-      // Rollback user creation if email fails
-      await User.findByIdAndDelete(user._id);
-      return res.status(500).json({ message: "L'e-mail n'a pas pu être envoyé. Veuillez réessayer." });
-    }
-
+    return res.status(201).json({ ok: true, message: 'E-mail de confirmation envoyé' });
   } catch (err) {
-    if (err && err.code === 11000) {
-      return res.status(400).json({ message: 'Email already in use' });
-    }
+    // gestion duplicate key
+    if (err && err.code === 11000) return res.status(400).json({ message: 'Електронна адреса вже використовується' });
     console.error('Register error:', err);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Сталася помилка' });
   }
 });
 
-// GET /api/auth/verify-email/:token
-router.get('/verify-email/:token', async (req, res) => {
+// ---------- VERIFY EMAIL
+router.get('/verify-email', async (req, res) => {
   try {
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(req.params.token)
-      .digest('hex');
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ message: 'Немає токена' });
 
+    const hashed = crypto.createHash('sha256').update(String(token)).digest('hex');
     const user = await User.findOne({
-      emailConfirmationToken: hashedToken,
-      emailConfirmationExpires: { $gt: Date.now() },
+      emailVerifyToken: hashed,
+      emailVerifyExpires: { $gt: new Date() }
     });
 
-    if (!user) {
-      return res.status(400).json({ message: 'Token invalide ou expiré.' });
-    }
+    if (!user) return res.status(400).json({ message: 'Недійсний або прострочений токен' });
 
-    user.isVerified = true;
-    user.emailConfirmationToken = undefined;
-    user.emailConfirmationExpires = undefined;
-    await user.save();
+    user.isEmailVerified = true;
+    user.emailVerifyToken = undefined;
+    user.emailVerifyExpires = undefined;
+    await user.save({ validateBeforeSave: false });
 
-    res.json({ success: true, message: 'Email vérifié avec succès. Vous pouvez maintenant vous connecter.' });
-
+    // Redirige vers le front (login) avec flag
+    const redirectTo = `${CLIENT_ORIGIN}/login?verified=1`;
+    return res.redirect(302, redirectTo);
   } catch (err) {
-    console.error('Email verification error:', err);
-    res.status(500).json({ message: 'Erreur du serveur' });
+    console.error('Verify error:', err);
+    return res.status(500).json({ message: 'Сталася помилка' });
   }
 });
 
+// ---------- RESEND VERIFY
+router.post('/resend-verify', async (req, res) => {
+  try {
+    const normEmail = String(req.body.email || '').trim().toLowerCase();
+    const user = await User.findOne({ email: normEmail });
+    if (!user) return res.status(404).json({ message: 'Користувача не знайдено' });
+    if (user.isEmailVerified) return res.json({ ok: true, message: 'Вже підтверджено' });
 
-// POST /api/auth/login
+    const rawToken = user.createEmailVerifyToken();
+    await user.save({ validateBeforeSave: false });
+
+    const verifyUrl = `${CLIENT_ORIGIN}/verify-email?token=${rawToken}`;
+    await sendEmail({
+      to: normEmail,
+      subject: 'Confirmez votre e-mail / Підтвердіть свою електронну адресу',
+      html: `<p>Confirmez : <a href="${verifyUrl}">${verifyUrl}</a></p>`,
+      text: `Confirmez : ${verifyUrl}`
+    });
+
+    return res.json({ ok: true, message: 'E-mail renvoyé' });
+  } catch (err) {
+    console.error('Resend verify error:', err);
+    return res.status(500).json({ message: 'Сталася помилка' });
+  }
+});
+
+// ---------- LOGIN (bloque si email non vérifié)
 router.post('/login', async (req, res) => {
   try {
     const normEmail = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
 
     const user = await User.findOne({ email: normEmail }).select('+password');
-    if (!user) {
-      return res.status(400).json({ message: 'Utilisateur non trouvé' });
-    }
-
-    if (!user.isVerified) {
-      return res.status(401).json({ message: 'Veuillez vérifier votre adresse e-mail avant de vous connecter.' });
-    }
+    if (!user) return res.status(400).json({ message: 'Користувача не знайдено' });
 
     const ok = await user.matchPassword(password);
-    if (!ok) {
-      return res.status(400).json({ message: 'Mot de passe incorrect' });
+    if (!ok) return res.status(400).json({ message: 'Невірний пароль' });
+
+    if (!user.isEmailVerified) {
+      return res.status(403).json({ message: 'Будь ласка, підтвердіть свою електронну адресу' });
     }
 
     const token = sign(user);
-    return res.json({
-      token,
-      role: user.role,
-      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email }
-    });
+    return res.json({ token, role: user.role, user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email } });
   } catch (err) {
     console.error('Login error:', err);
-    return res.status(500).json({ message: 'Erreur du serveur' });
+    return res.status(500).json({ message: 'Сталася помилка' });
   }
 });
 
-// GET /api/auth/me
+// ---------- GOOGLE LOGIN (optionnel, envoie id_token depuis le front)
+router.post('/google', async (req, res) => {
+  try {
+    if (!googleClient) return res.status(500).json({ message: 'Google non configuré' });
+    const { id_token } = req.body;
+    if (!id_token) return res.status(400).json({ message: 'id_token manquant' });
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: id_token,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    const payload = ticket.getPayload(); // { email, email_verified, given_name, family_name, picture, ... }
+
+    if (!payload?.email_verified) return res.status(400).json({ message: 'Compte Google non vérifié' });
+
+    const email = payload.email.toLowerCase();
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        email,
+        firstName: payload.given_name,
+        lastName: payload.family_name,
+        password: crypto.randomBytes(20).toString('hex'), // dummy
+        isEmailVerified: true, // Google vérifié
+        role: 'PARENT'
+      });
+    } else if (!user.isEmailVerified) {
+      user.isEmailVerified = true;
+      await user.save({ validateBeforeSave: false });
+    }
+
+    const token = sign(user);
+    return res.json({ token, role: user.role, user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email } });
+  } catch (err) {
+    console.error('Google login error:', err);
+    return res.status(500).json({ message: 'Сталася помилка' });
+  }
+});
+
+// ---------- ME
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const u = await User.findById(req.user.id).select('-password');
-    if (!u) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    if (!u) return res.status(404).json({ message: 'Користувача не знайдено' });
     return res.json(u);
   } catch (err) {
     console.error('Me error:', err);
-    return res.status(500).json({ message: 'Erreur du serveur' });
+    return res.status(500).json({ message: 'Сталася помилка' });
   }
 });
 

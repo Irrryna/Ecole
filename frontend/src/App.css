@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.card__top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.muted{color:#667085;text-decoration:none}
+.muted:hover{text-decoration:underline}

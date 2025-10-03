@@ -1,36 +1,42 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 
-import PublicLayout from './components/PublicLayout';
+import PublicLayout from "./components/PublicLayout";
 
 // Pages publiques
-import HomePage from './pages/HomePage';
-import NewsPage from './pages/NewsPage';
-import TeachersPage from './pages/TeachersPage';
-import ArticlesPage from './pages/ArticlesPage';
-import SchedulePage from './pages/SchedulePage'; // /planning (public)
+import HomePage from "./pages/HomePage";
+import NewsPage from "./pages/NewsPage";
+import TeachersPage from "./pages/TeachersPage";
+import ArticlesPage from "./pages/ArticlesPage";
+import SchedulePage from "./pages/SchedulePage"; // /planning (public)
 
 // Auth
-import Login from './components/Login';
-import Register from './components/Register';
-import VerifyEmailPage from './pages/VerifyEmailPage';
+import Login from "./components/Login";
+import Register from "./components/Register";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 // Contexte d'auth
-import AuthProvider, { useAuth } from './context/AuthContext';
+import AuthProvider, { useAuth } from "./context/AuthContext";
 
 // Espace connecté (portail)
-import PrivateLayout from './components/PrivateLayout';             // menu latéral + <Outlet/>
-import HomeworkList from './pages/portal/HomeworkList';             // parent
-import PlanningPrivate from './pages/portal/PlanningPrivate';       // parent
-import HomeworkManage from './pages/portal/HomeworkManage';         // teacher/admin
+import PrivateLayout from "./components/PrivateLayout"; // menu latéral + <Outlet/>
+import HomeworkList from "./pages/portal/HomeworkList"; // parent
+import PlanningPrivate from "./pages/portal/PlanningPrivate"; // parent
+import HomeworkManage from "./pages/portal/HomeworkManage"; // teacher/admin
 
-import './App.css';
+import "./App.css";
 
 // Garde d'auth
 const ProtectedRoute = ({ children, roles }) => {
   const { user, token } = useAuth();
   if (!token) return <Navigate to="/login" replace />;
-  if (roles && user && !roles.includes(user.role)) return <Navigate to="/portal" replace />;
+  if (roles && user && !roles.includes(user.role))
+    return <Navigate to="/portal" replace />;
   return children;
 };
 
@@ -55,16 +61,36 @@ function App() {
             {/* Page publique: planning parental */}
             <Route path="/planning" element={<SchedulePage />} />
             {/* Alias rétro-compat pour ton ancienne route */}
-            <Route path="/schedule" element={<Navigate to="/planning" replace />} />
+            <Route
+              path="/schedule"
+              element={<Navigate to="/planning" replace />}
+            />
 
             {/* Compat: si tu avais un /dashboard public → redirige vers /portal */}
-            <Route path="/dashboard" element={<Navigate to="/portal" replace />} />
+            <Route
+              path="/dashboard"
+              element={<Navigate to="/portal" replace />}
+            />
           </Route>
 
           {/* Auth (sans PublicLayout) */}
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            }
+          />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* Portail connecté */}
           <Route
@@ -86,7 +112,7 @@ function App() {
             <Route
               path="homework/manage"
               element={
-                <ProtectedRoute roles={['TEACHER','ADMIN']}>
+                <ProtectedRoute roles={["TEACHER", "ADMIN"]}>
                   <HomeworkManage />
                 </ProtectedRoute>
               }

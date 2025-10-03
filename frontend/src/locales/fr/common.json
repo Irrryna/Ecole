@@ -64,7 +64,6 @@
     "login": { "title": "Connexion", "email": "Email", "password": "Mot de passe", "btn": "Se connecter", "register": "Pas encore de compte ? {{link}}" },
     "registerLink": "Créer un compte"
   },
-
   "auth": {
     "login": {
       "title": "Connexion",
@@ -83,7 +82,9 @@
       "confirm": "Confirmer le mot de passe",
       "btn": "Créer mon compte",
       "haveAccount": "Déjà un compte ? {{link}}",
-      "loginLink": "Se connecter"
+      "loginLink": "Se connecter",
+      "backHome": "Retour à l’accueil"
     }
   }
+
 }
