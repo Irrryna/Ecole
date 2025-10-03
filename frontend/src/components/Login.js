@@ -1,8 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { GoogleLogin } from "@react-oauth/google"; // npm i @react-oauth/google
+
+// --- Import Google OAuth de manière optionnelle ---
+let GoogleLogin = null;
+try {
+  if (process.env.REACT_APP_GOOGLE_CLIENT_ID) {
+    const { GoogleLogin: GoogleLoginComponent } = require("@react-oauth/google");
+    GoogleLogin = GoogleLoginComponent;
+  }
+} catch (e) {
+  console.warn('Google OAuth non disponible');
+}
 
 export default function Login() {
   const { t } = useTranslation();
@@ -12,7 +22,23 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [googleAvailable, setGoogleAvailable] = useState(false);
   const API = process.env.REACT_APP_API_URL || "/api";
+
+  // Vérifier si Google OAuth est disponible
+  useEffect(() => {
+    const checkGoogleStatus = async () => {
+      try {
+        const response = await fetch(`${API}/auth/google/status`);
+        const data = await response.json();
+        setGoogleAvailable(data.available);
+      } catch (err) {
+        console.warn('Impossible de vérifier le statut Google OAuth');
+        setGoogleAvailable(false);
+      }
+    };
+    checkGoogleStatus();
+  }, [API]);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -94,12 +120,14 @@ export default function Login() {
             {loading ? "…" : t("auth.login.btn")}
           </button>
 
-          <div style={{ marginTop: 12 }}>
-            <GoogleLogin
-              onSuccess={onGoogle}
-              onError={() => setError("Google login error")}
-            />
-          </div>
+          {googleAvailable && GoogleLogin && (
+            <div style={{ marginTop: 12 }}>
+              <GoogleLogin
+                onSuccess={onGoogle}
+                onError={() => setError("Google login error")}
+              />
+            </div>
+          )}
 
           <p className="muted" style={{ marginTop: 8 }}>
             <Trans

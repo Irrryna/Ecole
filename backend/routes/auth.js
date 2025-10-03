@@ -1,13 +1,25 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { OAuth2Client } = require('google-auth-library'); // login Google (optionnel)
-const User = require('../models/Users');
+const User = require('../models/User');
 const { requireAuth } = require('../middleware/auth');
 const sendEmail = require('../../tools/sendEmail'); // <- tools/sendEmail.js à la racine du projet
 
 const CLIENT_ORIGIN = (process.env.CLIENT_ORIGIN || 'http://localhost:3000').split(',')[0].trim();
-const googleClient = process.env.GOOGLE_CLIENT_ID ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID) : null;
+
+// --- Import Google auth de manière optionnelle ---
+let googleClient = null;
+try {
+  if (process.env.GOOGLE_CLIENT_ID) {
+    const { OAuth2Client } = require('google-auth-library');
+    googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    console.log('✅ Google OAuth configuré');
+  } else {
+    console.log('⚠️  GOOGLE_CLIENT_ID non défini — login Google désactivé');
+  }
+} catch (e) {
+  console.warn('⚠️  google-auth-library non installée — login Google désactivé');
+}
 
 function sign(u) {
   return jwt.sign({ id: u._id, role: u.role, email: u.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -134,7 +146,13 @@ router.post('/login', async (req, res) => {
 // ---------- GOOGLE LOGIN (optionnel, envoie id_token depuis le front)
 router.post('/google', async (req, res) => {
   try {
-    if (!googleClient) return res.status(500).json({ message: 'Google non configuré' });
+    if (!googleClient) {
+      return res.status(503).json({ 
+        message: 'Google OAuth non configuré',
+        available: false 
+      });
+    }
+    
     const { id_token } = req.body;
     if (!id_token) return res.status(400).json({ message: 'id_token manquant' });
 
@@ -168,6 +186,14 @@ router.post('/google', async (req, res) => {
     console.error('Google login error:', err);
     return res.status(500).json({ message: 'Сталася помилка' });
   }
+});
+
+// ---------- CHECK GOOGLE OAUTH AVAILABILITY
+router.get('/google/status', (req, res) => {
+  return res.json({ 
+    available: !!googleClient,
+    configured: !!process.env.GOOGLE_CLIENT_ID 
+  });
 });
 
 // ---------- ME
