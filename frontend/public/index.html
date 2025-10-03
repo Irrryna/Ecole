@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <!-- fichiers du dossier public/ => chemins à la racine -->
+    <link rel="icon" href="/favicon.ico?v=4" />
+    <link rel="apple-touch-icon" href="/brand-192.png?v=4" />
+    <link rel="manifest" href="/manifest.json?v=4" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#072AC8" />
+    <meta name="description" content="École Ukrainienne Saint-Nicolas à Lyon" />
+
+    <!-- preconnect pour les Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Preload du visuel héros (choisis un vrai fichier existant dans public/images) -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/slide1-1280.webp"
+      imagesrcset="/images/slide1-480.webp 480w, /images/slide1-768.webp 768w, /images/slide1-1024.webp 1024w, /images/slide1-1280.webp 1280w, /images/slide1-1600.webp 1600w, /images/slide1-1920.webp 1920w"
+      imagesizes="100vw"
+      type="image/webp"
+      fetchpriority="high"
+    />
+
+    <title>École Ukrainienne Saint-Nicolas à Lyon</title>
+  </head>
+  <body>
+    <noscript>Vous devez activer JavaScript pour voir ce site.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

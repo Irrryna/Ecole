@@ -26,7 +26,8 @@ export default function Navbar() {
           className="brand"
           aria-label="Accueil — École Ukrainienne à Lyon"
         >
-          <img src="/logo192.png" alt="" className="brand__logo" />
+          <img src="/brand-192.png?v=3" class="brand_logo" alt="Logo École" />
+
           <div className="brand__text">
             <span className="brand__title">École Ukrainienne</span>
             <span className="brand__subtitle">à Lyon</span>
