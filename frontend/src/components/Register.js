@@ -83,9 +83,9 @@ export default function Register(){
           </button>
 
           <p className="muted" style={{marginTop:8}}>
-            <Trans i18nKey="auth.register.haveAccount" components={{ a: <a href="/login" /> }}>
-              Déjà un compte ? <a href="/login">Se connecter</a>
-            </Trans>
+            {t('auth.register.haveAccount', {
+              link: <a href="/login">{t('auth.register.loginLink')}</a>
+            })}
           </p>
         </form>
       </div>

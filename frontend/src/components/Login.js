@@ -57,9 +57,9 @@ export default function Login(){
             {loading ? "…" : t("auth.login.btn")}
           </button>
           <p className="muted" style={{marginTop:8}}>
-            <Trans i18nKey="auth.login.noAccount" components={{ a: <a href="/register" /> }}>
-              Pas encore de compte ? <a href="/register">Créer un compte</a>
-            </Trans>
+            {t('auth.login.noAccount', {
+              link: <a href="/register">{t('auth.login.registerLink')}</a>
+            })}
           </p>
         </form>
       </div>

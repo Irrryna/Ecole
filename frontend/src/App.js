@@ -13,6 +13,7 @@ import SchedulePage from './pages/SchedulePage'; // /planning (public)
 // Auth
 import Login from './components/Login';
 import Register from './components/Register';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 
 // Contexte d'auth
 import AuthProvider, { useAuth } from './context/AuthContext';
@@ -63,6 +64,7 @@ function App() {
           {/* Auth (sans PublicLayout) */}
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
           {/* Portail connecté */}
           <Route
