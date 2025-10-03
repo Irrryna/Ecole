@@ -22,7 +22,7 @@ export default function Navbar(){
     <header className={`site-header`}>
       <nav className="navbar container">
         <Link to="/" className="brand" aria-label="Accueil — École Ukrainienne à Lyon">
-          <img src="/logo.png" alt="" className="brand__logo" />
+          <img src="/logo192.png" alt="" className="brand__logo" />
           <div className="brand__text">
             <span className="brand__title">École Ukrainienne</span>
             <span className="brand__subtitle">à Lyon</span>
