@@ -6,7 +6,7 @@ export default function Footer(){
     <footer className="site-footer">
       <div className="container footer__grid">
         <div className="footer__brand">
-          <img src="/logo.png" alt="" aria-hidden="true" />
+          <img src="/logo192.png" alt="" aria-hidden="true" />
           <div>
             <strong>{t("brand.title")} Saint-Nicolas</strong><br/>Lyon — Est. 2015
           </div>
