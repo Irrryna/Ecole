@@ -1,7 +1,7 @@
 // backend/routes/auth.js
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
-const User = require('../models/Users');
+const User = require('../models/User');
 const { requireAuth } = require('../middleware/auth');
 // Génération du JWT
 function sign(u) {
