@@ -10,6 +10,7 @@ export default function Register(){
   const [form, setForm] = useState({ firstname:"", lastname:"", email:"", password:"", confirm:"" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const API = process.env.REACT_APP_API_URL || "/api";
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -61,10 +62,20 @@ export default function Register(){
             <input name="email" type="email" value={form.email} onChange={onChange} required />
           </label>
           <label>{t("auth.register.password")}
-            <input name="password" type="password" value={form.password} onChange={onChange} required />
+            <div className="password-input-container">
+              <input name="password" type={showPassword ? "text" : "password"} value={form.password} onChange={onChange} required />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle-btn">
+                {showPassword ? "👁️" : "👁️"}
+              </button>
+            </div>
           </label>
           <label>{t("auth.register.confirm")}
-            <input name="confirm" type="password" value={form.confirm} onChange={onChange} required />
+            <div className="password-input-container">
+              <input name="confirm" type={showPassword ? "text" : "password"} value={form.confirm} onChange={onChange} required />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle-btn">
+                {showPassword ? "👁️" : "👁️"}
+              </button>
+            </div>
           </label>
 
           <button className="btn" type="submit" disabled={loading}>

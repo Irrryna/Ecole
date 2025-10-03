@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Class = require('../models/Class');
-const auth = require('../middleware/auth'); // Assuming you have an auth middleware
+const { requireAuth: auth } = require('../middleware/auth');
 
 // GET /api/classes - Get all classes
 router.get('/', async (req, res) => {

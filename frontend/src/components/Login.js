@@ -10,6 +10,7 @@ export default function Login(){
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const API = process.env.REACT_APP_API_URL || "/api";   //  REACT_APP_API_URL=/api
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -45,7 +46,12 @@ export default function Login(){
             <input name="email" type="email" value={form.email} onChange={onChange} required />
           </label>
           <label>{t("auth.login.password")}
-            <input name="password" type="password" value={form.password} onChange={onChange} required />
+            <div className="password-input-container">
+              <input name="password" type={showPassword ? "text" : "password"} value={form.password} onChange={onChange} required />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle-btn">
+                {showPassword ? "👁️" : "👁️"}
+              </button>
+            </div>
           </label>
           <button className="btn" type="submit" disabled={loading}>
             {loading ? "…" : t("auth.login.btn")}
