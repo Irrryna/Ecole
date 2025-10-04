@@ -13,6 +13,9 @@ RUN npm install --only=production
 # Copier le reste du code source
 COPY . .
 
+# Copier le dossier 'tools' depuis la racine du projet
+COPY ../tools ./tools
+
 # Exposer le port
 EXPOSE 5000
 
