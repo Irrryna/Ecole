@@ -13,11 +13,11 @@ RUN npm install --only=production
 # Copier le reste du code source
 COPY . .
 
-# Copier le dossier 'tools' depuis la racine du projet
-COPY ../tools ./tools
+# Copier le dossier 'tools' depuis la racine du projet au niveau supérieur
+COPY ../tools /usr/src/tools
 
 # Set NODE_PATH to ensure modules are found
-ENV NODE_PATH=/usr/src/app/node_modules
+ENV NODE_PATH=/usr/src/app/node_modules:/usr/src/tools/node_modules
 
 # Exposer le port
 EXPOSE 5000
