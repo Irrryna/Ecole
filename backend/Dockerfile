@@ -16,6 +16,9 @@ COPY . .
 # Copier le dossier 'tools' depuis la racine du projet
 COPY ../tools ./tools
 
+# Set NODE_PATH to ensure modules are found
+ENV NODE_PATH=/usr/src/app/node_modules
+
 # Exposer le port
 EXPOSE 5000
 
