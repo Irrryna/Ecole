@@ -22,7 +22,7 @@ export default function HeroCarousel(){
     if (timer.current) clearInterval(timer.current);
     timer.current = setInterval(next, 6000);
     return () => clearInterval(timer.current);
-  }, [index]);
+  }, [index, slides.length]);
 
   return (
     <div className="hero" id="hero" aria-label="Bienvenue">

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./Navbar.css";
 
 const links = [
@@ -12,6 +13,7 @@ const links = [
 ];
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const onHome = pathname === "/";
   const [open, setOpen] = useState(false);
